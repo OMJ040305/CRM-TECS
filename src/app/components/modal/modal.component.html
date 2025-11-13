@@ -1,0 +1,6 @@
+<div class="modal-backdrop" (click)="backdropClick($event)">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="close.emit()" aria-label="Cerrar">✖</button>
+    <ng-content></ng-content>
+  </div>
+</div>

@@ -1,0 +1,148 @@
+<div class="page-container">
+  <h1 id="tittleRegister">Panel de Registros</h1>
+
+  <div class="controls">
+    <button class="register-btn" (click)="openTecModal()">Registrar Institución</button>
+    <button class="register-btn" (click)="openUserModal()">Registrar Usuario</button>
+  </div>
+
+  <p class="message" *ngIf="message">{{ message }}</p>
+
+  <!-- listado rápido de instituciones -->
+  <section class="list-section">
+    <h3>Instituciones registradas</h3>
+    <div *ngIf="tecs.length === 0">No hay instituciones registradas.</div>
+    <ul class="tec-list">
+      <li *ngFor="let t of tecs" class="tec-item">
+        <div class="tec-left">
+          <img *ngIf="getTecLogo(t)" [src]="getTecLogo(t)" alt="logo" class="logo-thumb" />
+          <div>
+            <strong>{{ t.nombre }}</strong>
+            <div class="muted">CCT: {{ t.CCT }} — {{ t.direccion }}</div>
+          </div>
+        </div>
+        <div class="tec-actions">
+          <button (click)="openCareerModal(t.CCT)" class="login-btn">Agregar Carrera</button>
+        </div>
+        <div class="careers" *ngIf="t.carreras && t.carreras.length">
+          <small>Carreras:</small>
+          <ul>
+            <li *ngFor="let c of t.carreras">
+              {{ c.nombre }} ({{ c.clave }}) — población: {{ c.poblacion }}
+            </li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </section>
+</div>
+
+<!-- MODAL: TEC -->
+<app-modal *ngIf="showTecModal" (close)="onTecModalClose()">
+  <form class="formRegister" (ngSubmit)="submitTec()" #fTec="ngForm">
+    <div class="forms">
+      <label>CCT</label>
+      <input type="number" [(ngModel)]="newTec.CCT" name="CCT" required />
+    </div>
+
+    <div class="forms">
+      <label>Nombre</label>
+      <input type="text" [(ngModel)]="newTec.nombre" name="nombre" required />
+    </div>
+
+    <div class="forms">
+      <label>Dirección</label>
+      <input type="text" [(ngModel)]="newTec.direccion" name="direccion" />
+    </div>
+
+    <div class="forms">
+      <label>Correo</label>
+      <input type="email" [(ngModel)]="newTec.correo" name="correo" />
+    </div>
+
+    <div class="forms">
+      <label>Teléfono</label>
+      <input type="number" [(ngModel)]="newTec.telefono" name="telefono" />
+    </div>
+
+    <div class="forms">
+      <label>Representante</label>
+      <input type="text" [(ngModel)]="newTec.representante" name="representante" />
+    </div>
+
+    <div class="forms">
+      <label>Puesto representante</label>
+      <input type="text" [(ngModel)]="newTec.puestoRepresentante" name="puesto" />
+    </div>
+
+    <div class="forms">
+      <label>Logo institución</label>
+      <input type="file" (change)="handleTecLogoInput($event.target.files)" accept="image/*" />
+      <img *ngIf="newTec.logo" [src]="newTec.logo" class="preview-logo" />
+    </div>
+
+    <div class="botones" style="grid-column: 1 / -1;">
+      <button type="submit" class="register-btn">Registrar institución</button>
+      <button type="button" class="login-btn" (click)="onTecModalClose()">Cancelar</button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- MODAL: USER -->
+<app-modal *ngIf="showUserModal" (close)="onUserModalClose()">
+  <form class="formRegister" (ngSubmit)="submitUser()" #fUser="ngForm">
+    <div class="forms">
+      <label>Nombre</label>
+      <input type="text" [(ngModel)]="newUser.nombre" name="nombre" required />
+    </div>
+    <div class="forms">
+      <label>Correo</label>
+      <input type="email" [(ngModel)]="newUser.correo" name="correo" required />
+    </div>
+    <div class="forms">
+      <label>Contraseña</label>
+      <input type="password" [(ngModel)]="newUser.password" name="password" required />
+    </div>
+    <div class="forms">
+      <label>Rol</label>
+      <select [(ngModel)]="newUser.rol" name="rol">
+        <option value="admin">admin</option>
+        <option value="representante">representante</option>
+        <option value="estudiante">estudiante</option>
+      </select>
+    </div>
+
+    <div class="botones" style="grid-column: 1 / -1;">
+      <button type="submit" class="register-btn">Registrar usuario</button>
+      <button type="button" class="login-btn" (click)="onUserModalClose()">Cancelar</button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- MODAL: CAREER -->
+<app-modal *ngIf="showCareerModal" (close)="onCareerModalClose()">
+  <form class="formRegister" (ngSubmit)="submitCareer()" #fCareer="ngForm">
+    <div class="forms">
+      <label>Nombre carrera</label>
+      <input type="text" [(ngModel)]="newCareer.nombre" name="nombreCareer" required />
+    </div>
+    <div class="forms">
+      <label>Clave</label>
+      <input type="text" [(ngModel)]="newCareer.clave" name="claveCareer" required />
+    </div>
+    <div class="forms">
+      <label>Población</label>
+      <input type="number" [(ngModel)]="newCareer.poblacion" name="poblacionCareer" />
+    </div>
+    <div class="forms">
+      <label>Logo carrera</label>
+      <input type="file" (change)="handleCareerLogoInput($event.target.files)" accept="image/*" />
+      <img *ngIf="newCareer.logo" [src]="newCareer.logo" class="preview-logo" />
+    </div>
+
+    <div class="botones" style="grid-column: 1 / -1;">
+      <button class="register-btn" type="submit">Agregar carrera</button>
+      <button type="button" class="login-btn" (click)="onCareerModalClose()">Cancelar</button>
+    </div>
+  </form>
+</app-modal>

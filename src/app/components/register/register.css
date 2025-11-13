@@ -1,0 +1,162 @@
+/* === layout from your provided style (kept mostly intact) === */
+form {
+  max-width: 1070px;
+  margin-top: 20px;
+  margin-left: 40px;
+  height: auto;
+}
+
+#tittleRegister{
+  display: block;
+  font-size: 30px;
+  margin-bottom: 12px;
+}
+
+.formRegister {
+  display: grid;
+  grid-template-columns: repeat(3, 2fr);
+  gap: 20px 40px;
+  padding: 10px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.forms {
+  display: block;
+  flex-direction: column;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  width: 160px;
+  font-size: 15px;
+  color: #343434;
+  display: block;
+}
+
+input, select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 300px;
+  max-height: 40px;
+  box-sizing: border-box;
+}
+
+input:focus, select:focus {
+  border-color: #0077cc;
+  outline: none;
+}
+
+/*Estilo del captcha placeholder*/
+.g-recaptcha{
+  display: flex;
+  justify-content: flex-end; 
+}
+
+/* botones -> alineación derecha */
+.botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 24px;
+  width: 100%;
+}
+
+button {
+  height: 44px;
+  width: auto;
+  margin: 8px 2px;
+  padding: 0 18px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.register-btn{
+  color: rgb(97, 18, 50);
+  background-color: white;
+  border: 2px solid rgb(97, 18, 50);
+}
+
+.login-btn{
+  color: rgb(111, 114, 113);
+  background-color: white;
+  border: 2px solid rgb(111, 114, 113);
+}
+
+.register-btn:hover{
+  background-color: rgb(97, 18, 50);
+  color: white;
+}
+
+.login-btn:hover{
+  background-color: rgb(111, 114, 113);
+  color: white;
+}
+
+/* remove number arrows */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* small layout extras for lists and previews */
+.page-container {
+  padding: 24px;
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.message {
+  margin: 12px 0;
+  color: #333;
+}
+
+.list-section {
+  margin-top: 18px;
+}
+
+.tec-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tec-item {
+  border: 1px solid #eee;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tec-left { display:flex; gap:10px; align-items:center; }
+
+.logo-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.tec-actions { align-self: flex-end; }
+
+.careers { margin-top: 6px; font-size: 13px; color: #555; }
+
+/* preview logo inside modal */
+.preview-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-top: 6px;
+}

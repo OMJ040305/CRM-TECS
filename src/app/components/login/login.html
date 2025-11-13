@@ -1,0 +1,76 @@
+<form (ngSubmit)="onLogin()" #loginForm="ngForm" class="login-form">
+  <h2 id="tittleLogin">INICIAR SESIÓN</h2>
+
+  <div class="form-row">
+    <label for="correo">Correo:</label>
+    <input
+      type="email"
+      id="correo"
+      name="correo"
+      [(ngModel)]="loginUser.correo"
+      required
+      autocomplete="email"
+    />
+  </div>
+
+  <div class="form-row">
+    <label for="password">Contraseña:</label>
+    <input
+      type="password"
+      id="password"
+      name="password"
+      [(ngModel)]="loginUser.password"
+      required
+      autocomplete="current-password"
+    />
+  </div>
+
+  <!-- reCAPTCHA (opcional) -->
+  <div class="g-recaptcha"
+       data-sitekey="6LdJ-u4rAAAAAD7tsPjiRUuTKHIPfRt21ErDqoOI"
+       data-callback="onCaptchaResolved">
+  </div>
+
+  <div class="botones">
+    <div>
+      <button type="button" class="register-btn" (click)="openRegister()">REGÍSTRATE</button>
+      <button type="submit" class="login-btn">INGRESAR</button>
+    </div>
+  </div>
+</form>
+
+<!-- Modal de registro (usa tu componente modal) -->
+<app-modal *ngIf="showRegisterModal" (close)="closeRegister()">
+  <form class="formRegister" (ngSubmit)="submitRegister()" #regForm="ngForm">
+    <h3>Registro de usuario</h3>
+
+    <div class="forms">
+      <label for="r-nombre">Nombre</label>
+      <input id="r-nombre" name="nombre" [(ngModel)]="newUser.nombre" required />
+    </div>
+
+    <div class="forms">
+      <label for="r-correo">Correo</label>
+      <input id="r-correo" name="correo" type="email" [(ngModel)]="newUser.correo" required />
+    </div>
+
+    <div class="forms">
+      <label for="r-password">Contraseña</label>
+      <input id="r-password" name="password" type="password" [(ngModel)]="newUser.password" required />
+    </div>
+
+    <div class="forms">
+      <label for="r-rol">Rol</label>
+      <select id="r-rol" name="rol" [(ngModel)]="newUser.rol" required>
+        <option value="estudiante">estudiante</option>
+        <option value="representante">representante</option>
+        <option value="admin">admin</option>
+      </select>
+    </div>
+
+    <div class="botones" style="grid-column: 1 / -1;">
+      <button type="submit" class="register-btn">Registrar</button>
+      <button type="button" class="login-btn" (click)="closeRegister()">Cancelar</button>
+    </div>
+  </form>
+</app-modal>

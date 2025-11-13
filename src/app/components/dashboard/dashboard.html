@@ -1,0 +1,78 @@
+<div class="page-container">
+  <div class="topbar">
+    <h2>Dashboard - Instituciones</h2>
+    <div class="top-actions">
+      <button (click)="openTecModal()" class="register-btn">+ Agregar institución</button>
+      <button (click)="logout()" class="login-btn">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <div *ngIf="!selectedTec" class="cards-grid">
+    <div *ngIf="tecs.length === 0">No hay instituciones registradas.</div>
+    <div *ngFor="let t of tecs" class="card">
+      <div class="card-header">
+        <img *ngIf="t.logo" [src]="t.logo" class="logo-thumb" />
+        <div>
+          <h3>{{ t.nombre }}</h3>
+          <div class="muted">CCT: {{ t.CCT }}</div>
+          <div class="muted">{{ t.direccion }}</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div>Representante: {{ t.representante }}</div>
+        <div class="card-actions">
+          <button (click)="viewCareers(t)" class="login-btn">Ver carreras</button>
+        </div>
+      </div>
+
+      <div class="card-carreras" *ngIf="t.carreras && t.carreras.length">
+        <small>Carreras: {{ t.carreras.length }}</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- selected Tec view: list careers and add -->
+  <div *ngIf="selectedTec" class="selected-panel">
+    <button class="login-btn" (click)="backToList()">← Volver a instituciones</button>
+    <h3>{{ selectedTec.nombre }}</h3>
+    <div class="selected-actions">
+      <button class="register-btn" (click)="openCareerModal()">+ Agregar carrera</button>
+    </div>
+
+    <div *ngIf="(selectedTec.carreras?.length ?? 0) === 0">No hay carreras registradas.</div>
+    <div class="careers-grid">
+      <div class="career-card" *ngFor="let c of selectedTec.carreras">
+        <img *ngIf="c.logo" [src]="c.logo" class="logo-thumb" />
+        <div>
+          <strong>{{ c.nombre }}</strong>
+          <div class="muted">Clave: {{ c.clave }}</div>
+          <div class="muted">Población: {{ c.poblacion }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- modal add tec -->
+<app-modal *ngIf="showAddTec" (close)="closeTecModal()">
+  <form class="formRegister" (ngSubmit)="submitTec()">
+    <h3>Agregar institución</h3>
+    <div class="forms"><label>CCT</label><input type="number" [(ngModel)]="newTec.CCT" name="CCT" required /></div>
+    <div class="forms"><label>Nombre</label><input [(ngModel)]="newTec.nombre" name="nombre" required /></div>
+    <div class="forms"><label>Dirección</label><input [(ngModel)]="newTec.direccion" name="direccion" /></div>
+    <div class="forms"><label>Logo</label><input type="file" (change)="handleTecLogoInput($event.target.files)" accept="image/*" /></div>
+    <div class="botones" style="grid-column:1 / -1;"><button class="register-btn" type="submit">Guardar</button><button class="login-btn" type="button" (click)="closeTecModal()">Cancelar</button></div>
+  </form>
+</app-modal>
+
+<!-- modal add career -->
+<app-modal *ngIf="showAddCareer" (close)="closeCareerModal()">
+  <form class="formRegister" (ngSubmit)="submitCareer()">
+    <h3>Agregar carrera</h3>
+    <div class="forms"><label>Nombre</label><input [(ngModel)]="newCareer.nombre" name="cnombre" required /></div>
+    <div class="forms"><label>Clave</label><input [(ngModel)]="newCareer.clave" name="cclave" required /></div>
+    <div class="forms"><label>Población</label><input type="number" [(ngModel)]="newCareer.poblacion" name="cpoblacion" /></div>
+    <div class="forms"><label>Logo</label><input type="file" (change)="handleCareerLogoInput($event.target.files)" accept="image/*" /></div>
+    <div class="botones" style="grid-column:1 / -1;"><button class="register-btn" type="submit">Guardar</button><button class="login-btn" type="button" (click)="closeCareerModal()">Cancelar</button></div>
+  </form>
+</app-modal>

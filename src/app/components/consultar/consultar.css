@@ -1,0 +1,66 @@
+/* consultar.css */
+.table-container {
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.table {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table thead th {
+  background: #2c3e50;
+  color: white;
+  border: none;
+  padding: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.table tbody tr {
+  transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #f1f3f4;
+  transform: translateY(-2px);
+}
+
+.table tbody td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #e9ecef;
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Estilo para celdas vacías */
+.table tbody td:empty::before {
+  content: "—";
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .table-container {
+    padding: 10px;
+  }
+  
+  .table {
+    font-size: 14px;
+  }
+  
+  .table thead th,
+  .table tbody td {
+    padding: 8px 10px;
+  }
+}

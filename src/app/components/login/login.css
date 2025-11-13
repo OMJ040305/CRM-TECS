@@ -1,0 +1,73 @@
+form {
+  max-width: 600px;
+  margin-top: 100px;
+  margin-left: 200px;
+  height: 400px;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+label {
+  width: 160px;
+  font-weight: 600;
+  font-size: 19px;
+  color: #343434;
+}
+
+input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+#tittleLogin {
+  display: block;
+  font-size: 30px;
+}
+
+button {
+  height: 49px;
+  width: 100px;
+  margin: 20px 2px;
+}
+
+.login-btn {
+  color: rgb(97, 18, 50);
+  background-color: white;
+  border-color: rgb(97, 18, 50);
+  border-width: 2px;
+}
+
+.register-btn {
+  color: rgb(111, 114, 113);
+  background-color: white;
+  border-color: rgb(111, 114, 113);
+  border-width: 2px;
+}
+
+.botones {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 390px;
+}
+
+.login-btn:hover {
+  background-color: rgb(97, 18, 50);
+  color: white;
+}
+
+.register-btn:hover {
+  background-color: rgb(111, 114, 113);
+  color: white;
+}
+
+.g-recaptcha {
+  display: flexbox;
+  align-self: self-end;
+  margin-left: 300px;
+}
