@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { ModalComponent } from '../modal/modal.component';
-import { JsonStorageService, Tec, Career } from '../../services/json-storage.service';
-import { AuthService } from '../../services/auth.service';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
+import {ModalComponent} from '../modal/modal.component';
+import {JsonStorageService, Tec, Career} from '../../services/json-storage.service';
+import {AuthService} from '../../services/auth.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,17 +14,19 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
-export class Dashboard implements OnInit {
+export class Dashboard implements OnInit, OnDestroy {
   tecs: Tec[] = [];
   selectedTec: Tec | null = null;
 
-  // modals
   showAddTec = false;
   showAddCareer = false;
+  showEditCareer = false;
 
-  // models
   newTec: Partial<Tec> = this.getEmptyTec();
   newCareer: Partial<Career> = this.getEmptyCareer();
+  editingCareer: Career | null = null;
+
+  private dataSubscription?: Subscription;
 
   constructor(
     private storage: JsonStorageService,
@@ -37,6 +40,14 @@ export class Dashboard implements OnInit {
 
   ngOnInit(): void {
     this.loadData();
+
+    this.dataSubscription = this.storage.data$.subscribe(() => {
+      this.loadData();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.dataSubscription?.unsubscribe();
   }
 
   private getEmptyTec(): Partial<Tec> {
@@ -58,6 +69,7 @@ export class Dashboard implements OnInit {
       nombre: '',
       clave: '',
       poblacion: '',
+      alumnosEsperados: 100,
       logo: undefined
     };
   }
@@ -66,9 +78,50 @@ export class Dashboard implements OnInit {
     this.tecs = this.storage.getAllTecs();
   }
 
-  // -------------------------------
-  // INSTITUCIONES
-  // -------------------------------
+  // Calcular porcentaje de ocupación de una carrera
+  getOcupacionPercentage(carrera: Career): number {
+    const esperados = parseInt(String(carrera.alumnosEsperados)) || 0;
+    const inscritos = parseInt(String(carrera.poblacion)) || 0;
+
+    if (esperados === 0) return 0;
+    return Math.min((inscritos / esperados) * 100, 100);
+  }
+
+  // Obtener altura de barra para alumnos inscritos
+  getBarHeight(carrera: Career, tipo: 'esperados' | 'inscritos'): number {
+    const esperados = parseInt(String(carrera.alumnosEsperados)) || 0;
+    const inscritos = parseInt(String(carrera.poblacion)) || 0;
+    const max = Math.max(esperados, inscritos, 1);
+
+    if (tipo === 'esperados') {
+      return (esperados / max) * 100;
+    } else {
+      return (inscritos / max) * 100;
+    }
+  }
+
+  // Determinar estado de la carrera
+  getCareerStatus(carrera: Career): { label: string; color: string } {
+    const esperados = parseInt(String(carrera.alumnosEsperados)) || 0;
+    const inscritos = parseInt(String(carrera.poblacion)) || 0;
+
+    if (esperados === 0) {
+      return {label: 'Sin meta', color: '#9ca3af'};
+    }
+
+    const porcentaje = (inscritos / esperados) * 100;
+
+    if (porcentaje >= 90) {
+      return {label: 'Completo', color: '#10b981'};
+    } else if (porcentaje >= 70) {
+      return {label: 'Óptimo', color: '#3b82f6'};
+    } else if (porcentaje >= 50) {
+      return {label: 'Medio', color: '#f59e0b'};
+    } else {
+      return {label: 'Bajo', color: '#ef4444'};
+    }
+  }
+
   openTecModal(): void {
     this.newTec = this.getEmptyTec();
     this.showAddTec = true;
@@ -101,9 +154,17 @@ export class Dashboard implements OnInit {
     reader.readAsDataURL(file);
   }
 
-  // -------------------------------
-  // CARRERAS
-  // -------------------------------
+  deleteTec(tecId: number): void {
+    if (!confirm('¿Eliminar esta institución?')) return;
+
+    const res = this.storage.deleteTec(tecId);
+    alert(res.message);
+
+    if (res.success) {
+      this.loadData();
+    }
+  }
+
   viewCareers(tec: Tec): void {
     this.selectedTec = tec;
   }
@@ -153,6 +214,51 @@ export class Dashboard implements OnInit {
     }
   }
 
+  openEditCareerModal(career: Career): void {
+    this.editingCareer = {...career};
+    this.showEditCareer = true;
+  }
+
+  closeEditCareerModal(): void {
+    this.showEditCareer = false;
+    this.editingCareer = null;
+  }
+
+  handleEditCareerLogoInput(files: FileList | null): void {
+    if (!files || files.length === 0 || !this.editingCareer) return;
+    const file = files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (this.editingCareer) {
+        this.editingCareer.logo = reader.result as string;
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  submitEditCareer(): void {
+    if (!this.selectedTec || !this.editingCareer) return;
+
+    if (!this.editingCareer.nombre || !this.editingCareer.clave) {
+      alert('Nombre y clave obligatorios');
+      return;
+    }
+
+    const res = this.storage.updateCareer(
+      this.selectedTec.id,
+      this.editingCareer.id,
+      this.editingCareer
+    );
+    alert(res.message);
+
+    if (res.success) {
+      this.loadData();
+      this.selectedTec = this.storage.getTecById(this.selectedTec.id) ?? null;
+      this.showEditCareer = false;
+      this.editingCareer = null;
+    }
+  }
+
   deleteCareer(careerId: number): void {
     if (!this.selectedTec) return;
 
@@ -167,20 +273,30 @@ export class Dashboard implements OnInit {
     }
   }
 
-  deleteTec(tecId: number): void {
-    if (!confirm('¿Eliminar esta institución?')) return;
-
-    const res = this.storage.deleteTec(tecId);
-    alert(res.message);
-
-    if (res.success) {
-      this.loadData();
-    }
+  // Calcular población total (mantener compatibilidad)
+  getTotalPoblacion(): number {
+    if (!this.selectedTec || !this.selectedTec.carreras) return 0;
+    return this.selectedTec.carreras.reduce((total, carrera) => {
+      return total + (parseInt(carrera.poblacion) || 0);
+    }, 0);
   }
 
-  // -------------------------------
-  // SESIÓN
-  // -------------------------------
+  // Calcular total de alumnos inscritos
+  getTotalInscritos(): number {
+    if (!this.selectedTec || !this.selectedTec.carreras) return 0;
+    return this.selectedTec.carreras.reduce((total, carrera) => {
+      return total + (parseInt(String(carrera.poblacion)) || 0);
+    }, 0);
+  }
+
+  // Calcular total de alumnos esperados
+  getTotalEsperados(): number {
+    if (!this.selectedTec || !this.selectedTec.carreras) return 0;
+    return this.selectedTec.carreras.reduce((total, carrera) => {
+      return total + (parseInt(String(carrera.alumnosEsperados)) || 0);
+    }, 0);
+  }
+
   logout(): void {
     this.auth.logout();
   }

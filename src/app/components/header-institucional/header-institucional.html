@@ -1,31 +1,20 @@
 <!-- Header de Institución Educativa -->
 <header class="header-tec">
-    <div class="logo-institucion">
-        <img src="/escudo-mex.png" alt="LogoMexicano" class="logomx">
-        <img src="/logo-tecnm.png" alt="Institución">
-        <span>Red Nacional de Tecnológicos<br>
+  <div class="logo-institucion">
+    <img src="/escudo-mex.png" alt="LogoMexicano" class="logomx">
+    <img src="/logo-tecnm.png" alt="Institución">
+    <span>Red Nacional de Tecnológicos<br>
         <small>Tecnológico Nacional de México</small></span>
-        </div>
-    
-    <nav class="navbar">
-        
-        <!-- Usuario Logueado -->
-        <div class="user-section" *ngIf="isLoggedIn && currentUser">
-            <span class="welcome-text">Bienvenido, {{ currentUser.nombre }}</span>
-            <div class="user-menu">
-                <button class="user-btn" (click)="goToDashboard()">
-                </button>
-                <div class="dropdown-menu">
-                    <a (click)="goToProfile()">Mi Perfil</a>
-                    <a (click)="logout()">Cerrar Sesión</a>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Usuario No Logueado -->
-        <div class="user-section" *ngIf="!isLoggedIn">
-            <a routerLink="/login" class="login-btn">Iniciar Sesión</a>
-            <a routerLink="/registro" class="register-btn">Registrarse</a>
-        </div>
-    </nav>
+  </div>
+
+  <nav class="navbar">
+
+    <!-- Usuario Logueado -->
+    <div class="user-section" *ngIf="isLoggedIn && currentUser">
+      <span class="welcome-text">Bienvenido, {{ currentUser.nombre }}</span>
+      <div class="user-menu">
+        <button class="user-btn" (click)="goToDashboard()"></button>
+      </div>
+    </div>
+  </nav>
 </header>

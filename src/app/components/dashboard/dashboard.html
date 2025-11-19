@@ -7,11 +7,12 @@
     </div>
   </div>
 
+  <!-- LISTA DE INSTITUCIONES -->
   <div *ngIf="!selectedTec" class="cards-grid">
     <div *ngIf="tecs.length === 0">No hay instituciones registradas.</div>
     <div *ngFor="let t of tecs" class="card">
       <div class="card-header">
-        <img *ngIf="t.logo" [src]="t.logo" class="logo-thumb" />
+        <img *ngIf="t.logo" [src]="t.logo" class="logo-thumb"/>
         <div>
           <h3>{{ t.nombre }}</h3>
           <div class="muted">CCT: {{ t.CCT }}</div>
@@ -31,48 +32,217 @@
     </div>
   </div>
 
-  <!-- selected Tec view: list careers and add -->
+  <!-- VISTA DE CARRERAS CON ESTADÍSTICAS -->
   <div *ngIf="selectedTec" class="selected-panel">
     <button class="login-btn" (click)="backToList()">← Volver a instituciones</button>
-    <h3>{{ selectedTec.nombre }}</h3>
+
+    <div class="institution-header">
+      <div>
+        <h3>{{ selectedTec.nombre }}</h3>
+        <p class="muted">CCT: {{ selectedTec.CCT }}</p>
+      </div>
+      <div class="stats-summary">
+        <div class="stat-box">
+          <span class="stat-label">Total Esperados</span>
+          <span class="stat-value esperados">{{ getTotalEsperados() }}</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Total Inscritos</span>
+          <span class="stat-value inscritos">{{ getTotalInscritos() }}</span>
+        </div>
+      </div>
+    </div>
+
     <div class="selected-actions">
       <button class="register-btn" (click)="openCareerModal()">+ Agregar carrera</button>
     </div>
 
-    <div *ngIf="(selectedTec.carreras?.length ?? 0) === 0">No hay carreras registradas.</div>
-    <div class="careers-grid">
-      <div class="career-card" *ngFor="let c of selectedTec.carreras">
-        <img *ngIf="c.logo" [src]="c.logo" class="logo-thumb" />
-        <div>
-          <strong>{{ c.nombre }}</strong>
-          <div class="muted">Clave: {{ c.clave }}</div>
-          <div class="muted">Población: {{ c.poblacion }}</div>
+    <div *ngIf="(selectedTec.carreras?.length ?? 0) === 0" class="no-careers">
+      No hay carreras registradas.
+    </div>
+
+    <!-- TARJETAS DE CARRERAS CON GRÁFICAS -->
+    <div class="careers-grid-stats" *ngIf="selectedTec.carreras && selectedTec.carreras.length > 0">
+      <div class="career-card-stat" *ngFor="let c of selectedTec.carreras">
+
+        <!-- Header de la tarjeta -->
+        <div class="career-header">
+          <div class="career-title-section">
+            <img *ngIf="c.logo" [src]="c.logo" class="logo-thumb-small"/>
+            <div>
+              <h4>{{ c.nombre }}</h4>
+              <div class="muted">Clave: {{ c.clave }}</div>
+            </div>
+          </div>
+
+          <div class="career-status" [style.background-color]="getCareerStatus(c).color">
+            {{ getCareerStatus(c).label }}
+          </div>
         </div>
+
+        <!-- Gráfica comparativa -->
+        <div class="chart-section">
+          <div class="chart-bars">
+
+            <!-- Barra Alumnos Esperados -->
+            <div class="chart-bar-item">
+              <div class="bar-info">
+                <span class="bar-label-text">Esperados</span>
+                <span class="bar-value-text">{{ c.alumnosEsperados || 0 }}</span>
+              </div>
+            </div>
+
+            <!-- Barra Alumnos Inscritos -->
+            <div class="chart-bar-item">
+              <div class="bar-info">
+                <span class="bar-label-text">Inscritos</span>
+                <span class="bar-value-text">{{ c.poblacion || 0 }}</span>
+            </div>
+
+          </div>
+
+          <!-- Indicador de porcentaje -->
+          <div class="occupation-indicator">
+            <div class="occupation-circle">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="35" fill="none" stroke="#e5e7eb" stroke-width="6"/>
+                <circle cx="40" cy="40" r="35" fill="none"
+                        [attr.stroke]="getCareerStatus(c).color"
+                        stroke-width="6"
+                        [style.stroke-dasharray]="219.8"
+                        [style.stroke-dashoffset]="219.8 - (219.8 * getOcupacionPercentage(c) / 100)"
+                        transform="rotate(-90 40 40)"
+                        style="transition: stroke-dashoffset 0.8s ease-out"/>
+              </svg>
+              <div class="occupation-text">
+                <span class="occupation-percent">{{ getOcupacionPercentage(c).toFixed(0) }}%</span>
+                <span class="occupation-label">Ocupación</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="career-actions">
+          <button class="edit-btn" (click)="openEditCareerModal(c)" title="Editar carrera">
+            ✏️ Editar
+          </button>
+          <button class="delete-btn" (click)="deleteCareer(c.id)" title="Eliminar carrera">
+            🗑️ Eliminar
+          </button>
+        </div>
+
       </div>
     </div>
   </div>
 </div>
 
-<!-- modal add tec -->
+<!-- MODAL AGREGAR INSTITUCIÓN -->
 <app-modal *ngIf="showAddTec" (close)="closeTecModal()">
   <form class="formRegister" (ngSubmit)="submitTec()">
     <h3>Agregar institución</h3>
-    <div class="forms"><label>CCT</label><input type="number" [(ngModel)]="newTec.CCT" name="CCT" required /></div>
-    <div class="forms"><label>Nombre</label><input [(ngModel)]="newTec.nombre" name="nombre" required /></div>
-    <div class="forms"><label>Dirección</label><input [(ngModel)]="newTec.direccion" name="direccion" /></div>
-    <div class="forms"><label>Logo</label><input type="file" (change)="handleTecLogoInput($event.target.files)" accept="image/*" /></div>
-    <div class="botones" style="grid-column:1 / -1;"><button class="register-btn" type="submit">Guardar</button><button class="login-btn" type="button" (click)="closeTecModal()">Cancelar</button></div>
+    <div class="forms">
+      <label>CCT</label>
+      <input type="number" [(ngModel)]="newTec.CCT" name="CCT" required/>
+    </div>
+    <div class="forms">
+      <label>Nombre</label>
+      <input [(ngModel)]="newTec.nombre" name="nombre" required/>
+    </div>
+    <div class="forms">
+      <label>Dirección</label>
+      <input [(ngModel)]="newTec.direccion" name="direccion"/>
+    </div>
+    <div class="forms">
+      <label>Correo</label>
+      <input type="email" [(ngModel)]="newTec.correo" name="correo"/>
+    </div>
+    <div class="forms">
+      <label>Teléfono</label>
+      <input [(ngModel)]="newTec.telefono" name="telefono"/>
+    </div>
+    <div class="forms">
+      <label>Representante</label>
+      <input [(ngModel)]="newTec.representante" name="representante"/>
+    </div>
+    <div class="forms">
+      <label>Puesto Representante</label>
+      <input [(ngModel)]="newTec.puestoRepresentante" name="puestoRepresentante"/>
+    </div>
+    <div class="forms">
+      <label>Logo</label>
+      <input type="file" (change)="handleTecLogoInput($any($event.target).files)" accept="image/*"/>
+    </div>
+    <div class="botones" style="grid-column:1 / -1;">
+      <button class="register-btn" type="submit">Guardar</button>
+      <button class="login-btn" type="button" (click)="closeTecModal()">Cancelar</button>
+    </div>
   </form>
 </app-modal>
 
-<!-- modal add career -->
+<!-- MODAL AGREGAR CARRERA - CORREGIDO -->
 <app-modal *ngIf="showAddCareer" (close)="closeCareerModal()">
   <form class="formRegister" (ngSubmit)="submitCareer()">
     <h3>Agregar carrera</h3>
-    <div class="forms"><label>Nombre</label><input [(ngModel)]="newCareer.nombre" name="cnombre" required /></div>
-    <div class="forms"><label>Clave</label><input [(ngModel)]="newCareer.clave" name="cclave" required /></div>
-    <div class="forms"><label>Población</label><input type="number" [(ngModel)]="newCareer.poblacion" name="cpoblacion" /></div>
-    <div class="forms"><label>Logo</label><input type="file" (change)="handleCareerLogoInput($event.target.files)" accept="image/*" /></div>
-    <div class="botones" style="grid-column:1 / -1;"><button class="register-btn" type="submit">Guardar</button><button class="login-btn" type="button" (click)="closeCareerModal()">Cancelar</button></div>
+    <div class="forms">
+      <label>Nombre</label>
+      <input [(ngModel)]="newCareer.nombre" name="cnombre" required/>
+    </div>
+    <div class="forms">
+      <label>Clave</label>
+      <input [(ngModel)]="newCareer.clave" name="cclave" required/>
+    </div>
+    <div class="forms">
+      <label>Alumnos Esperados (Meta)</label>
+      <input type="number" [(ngModel)]="newCareer.alumnosEsperados" name="cesperados" placeholder="Ej: 200" required/>
+    </div>
+    <div class="forms">
+      <label>Alumnos Inscritos (Actuales)</label>
+      <input type="number" [(ngModel)]="newCareer.poblacion" name="cpoblacion" placeholder="Ej: 150" required/>
+    </div>
+    <div class="forms">
+      <label>Logo</label>
+      <input type="file" (change)="handleCareerLogoInput($any($event.target).files)" accept="image/*"/>
+    </div>
+    <div class="botones" style="grid-column:1 / -1;">
+      <button class="register-btn" type="submit">Guardar</button>
+      <button class="login-btn" type="button" (click)="closeCareerModal()">Cancelar</button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- MODAL EDITAR CARRERA - CORREGIDO -->
+<app-modal *ngIf="showEditCareer && editingCareer" (close)="closeEditCareerModal()">
+  <form class="formRegister" (ngSubmit)="submitEditCareer()">
+    <h3>✏️ Editar carrera</h3>
+    <div class="forms">
+      <label>Nombre</label>
+      <input [(ngModel)]="editingCareer.nombre" name="enombre" required/>
+    </div>
+    <div class="forms">
+      <label>Clave</label>
+      <input [(ngModel)]="editingCareer.clave" name="eclave" required/>
+    </div>
+    <div class="forms">
+      <label>Alumnos Esperados (Meta)</label>
+      <input type="number" [(ngModel)]="editingCareer.alumnosEsperados" name="eesperados"
+             placeholder="Ej: 200" required/>
+    </div>
+    <div class="forms">
+      <label>Alumnos Inscritos (Actuales)</label>
+      <input type="number" [(ngModel)]="editingCareer.poblacion" name="epoblacion" placeholder="Ej: 150" required/>
+    </div>
+    <div class="forms">
+      <label>Logo</label>
+      <input type="file" (change)="handleEditCareerLogoInput($any($event.target).files)" accept="image/*"/>
+    </div>
+    <div class="forms" *ngIf="editingCareer.logo">
+      <label>Logo actual</label>
+      <img [src]="editingCareer.logo" class="preview-logo"/>
+    </div>
+    <div class="botones" style="grid-column:1 / -1;">
+      <button class="register-btn" type="submit">💾 Guardar cambios</button>
+      <button class="login-btn" type="button" (click)="closeEditCareerModal()">Cancelar</button>
+    </div>
   </form>
 </app-modal>
